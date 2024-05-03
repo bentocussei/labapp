@@ -12,7 +12,7 @@ LABAPP é uma API desenvolvida em Django que gerencia informações sobre escola
 
 ```bash
 git clone https://github.com/bentocussei/labapp.git
-
+```
 2. Instale as dependências:
 
 3. Configure o banco de dados no arquivo settings.py.
@@ -21,12 +21,12 @@ git clone https://github.com/bentocussei/labapp.git
 
 ```bash
 python manage.py migrate
-
+```
 5. Inicie o servidor:
 
 ```bash
 python manage.py runserver
-
+```
 ## Uso
 
 ### Endpoints da API
@@ -41,4 +41,4 @@ POST /escolas/upload-excel/: Importa dados de escolas a partir de um arquivo Exc
 ### Autenticação
 API aberta
 
-![Exemplo de Imagem](doc_img/labapp.png)
+![LABAPP API](doc_img/labapp.png)
