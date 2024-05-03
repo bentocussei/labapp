@@ -10,10 +10,10 @@ from escolas import views
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Snippets API",
+      title="LABAPP",
       default_version='v1',
-      description="Test description",
-      terms_of_service="https://www.google.com/policies/terms/",
+      description="LABAPP é uma API aberta desenvolvida em Django que gerencia informações sobre escolas, permitindo a criação, atualização, exclusão e importação de dados a partir de um arquivo Excel.",
+      terms_of_service="https://www.linkedin.com/in/bentocussei/",
       contact=openapi.Contact(email="contact@snippets.local"),
       license=openapi.License(name="BSD License"),
    ),
@@ -26,7 +26,8 @@ router.register('escolas', views.EscolaViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('escolas/upload-excel/', views.EscolaViewSet.as_view({'post': 'upload_excel'}), name='upload_excel'),
+    path('escolas/upload-excel/', views.UploadExcelView.as_view(), name='upload_excel'),
+    
     path('', include(router.urls)),
 ]
 

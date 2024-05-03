@@ -2,7 +2,7 @@ import pytest
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 from .models import Escola
-from .views import EscolaViewSet
+from .views import EscolaViewSet, UploadExcelView
 # from .serializers import EscolaSerializer
 # from .views import escola_upload_view
 import pandas as pd
@@ -120,7 +120,7 @@ def test_upload_excel_valido():
 
     factory = APIRequestFactory()
     request = factory.post('/escolas/upload-excel/', {'file': excel_file}, format='multipart')
-    response = EscolaViewSet.as_view({'post': 'upload_excel'})(request)
+    response = UploadExcelView.as_view()(request)
 
     assert response.status_code == status.HTTP_200_OK
     assert "escolas inseridas com sucesso" in response.data['relatorio']
@@ -133,7 +133,7 @@ def test_upload_excel_invalido_arquivo():
     # Enviamos uma string ASCII como se fosse Excel para gerar o erro
     file_content = "Este é um arquivo de texto, não um Excel."
     request = factory.post('/escolas/upload-excel/', {'file': BytesIO(file_content.encode())}, format='multipart')
-    response = EscolaViewSet.as_view({'post': 'upload_excel'})(request)
+    response = UploadExcelView.as_view()(request)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert 'error' in response.data
@@ -151,7 +151,7 @@ def test_upload_excel_estrutura_invalida():
 
     factory = APIRequestFactory()
     request = factory.post('/escolas/upload-excel/', {'file': excel_file}, format='multipart')
-    response = EscolaViewSet.as_view({'post': 'upload_excel'})(request)
+    response = UploadExcelView.as_view()(request)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert 'error' in response.data
@@ -168,7 +168,7 @@ def test_upload_excel_estrutura_invalida():
 
 #     factory = APIRequestFactory()
 #     request = factory.post('/escolas/upload-excel/', {'file': excel_file}, format='multipart')
-#     response = EscolaViewSet.as_view({'post': 'upload_excel'})(request)
+#     response = UploadExcelView.as_view()(request)
 
 #     assert response.status_code == status.HTTP_200_OK
 #     assert 'relatorio' in response.data

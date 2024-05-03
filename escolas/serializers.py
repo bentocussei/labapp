@@ -5,4 +5,4 @@ from .models import Escola
 class EscolaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Escola
-        fields = '__all__'  # Exibe todos os campos
+        fields = '__all__'
