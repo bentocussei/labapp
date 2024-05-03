@@ -3,6 +3,10 @@ from rest_framework.test import APIRequestFactory
 from rest_framework import status
 from .models import Escola
 from .views import EscolaViewSet
+# from .serializers import EscolaSerializer
+# from .views import escola_upload_view
+import pandas as pd
+from io import BytesIO
 
 @pytest.mark.django_db
 def test_list_escolas():
@@ -101,3 +105,77 @@ def test_destroy_escola_not_found():
     response = EscolaViewSet.as_view({'delete': 'destroy'})(request, pk=1000)
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+    
+    
+# Files upload tests
+@pytest.mark.django_db
+def test_upload_excel_valido():
+    # Criamos um arquivo de Excel válido com pandas
+    data = {'nome': ['Escola A', 'Escola B'], 'email': ['escolaA@email.com', 'escolaB@email.com'],
+            'numero_salas': [10, 15], 'provincia': ['Luanda', 'Huíla']}
+    df = pd.DataFrame(data)
+    excel_file = BytesIO()
+    df.to_excel(excel_file, index=False)
+    excel_file.seek(0)
+
+    factory = APIRequestFactory()
+    request = factory.post('/escolas/upload-excel/', {'file': excel_file}, format='multipart')
+    response = EscolaViewSet.as_view({'post': 'upload_excel'})(request)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert "escolas inseridas com sucesso" in response.data['relatorio']
+    assert str(len(data['nome'])) in response.data['relatorio']
+
+
+@pytest.mark.django_db
+def test_upload_excel_invalido_arquivo():
+    factory = APIRequestFactory()
+    # Enviamos uma string ASCII como se fosse Excel para gerar o erro
+    file_content = "Este é um arquivo de texto, não um Excel."
+    request = factory.post('/escolas/upload-excel/', {'file': BytesIO(file_content.encode())}, format='multipart')
+    response = EscolaViewSet.as_view({'post': 'upload_excel'})(request)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'error' in response.data
+    assert response.data['error'] == "Arquivo não é um arquivo Excel (.xlsx)."
+
+
+@pytest.mark.django_db
+def test_upload_excel_estrutura_invalida():
+
+    data = {'nome': ['Escola A'], 'numero': [10], 'provincia': ['Luanda']}
+    df = pd.DataFrame(data)
+    excel_file = BytesIO()
+    df.to_excel(excel_file, index=False)
+    excel_file.seek(0)
+
+    factory = APIRequestFactory()
+    request = factory.post('/escolas/upload-excel/', {'file': excel_file}, format='multipart')
+    response = EscolaViewSet.as_view({'post': 'upload_excel'})(request)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'error' in response.data
+    assert "Estrutura do Excel incorreta." in response.data['error']
+    
+    
+# @pytest.mark.django_db
+# def test_upload_excel_dados_invalidos():
+#     data = {'nome': ['Escola A'], 'email': ['email_invalido'], 'numero_salas': [10], 'provincia': ['Luanda']}
+#     df = pd.DataFrame(data)
+#     excel_file = BytesIO()
+#     df.to_excel(excel_file, index=False)
+#     excel_file.seek(0)
+
+#     factory = APIRequestFactory()
+#     request = factory.post('/escolas/upload-excel/', {'file': excel_file}, format='multipart')
+#     response = EscolaViewSet.as_view({'post': 'upload_excel'})(request)
+
+#     assert response.status_code == status.HTTP_200_OK
+#     assert 'relatorio' in response.data
+#     assert "**0 escolas inseridas com sucesso.**" in response.data['relatorio']
+#     assert "**1 escolas falharam:**\nLinha 1: {'email': ['Este e-mail não é válido.']}" in response.data['relatorio']
+
+
+
+
+
