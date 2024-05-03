@@ -20,18 +20,20 @@ class EscolaViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def update(self, request, pk):
-        escola = self.get_object(pk)
+    def update(self, request, pk=None, partial=False):
+        try:
+            escola = self.get_queryset().get(pk=pk)
+        except Escola.DoesNotExist:
+            return Response({"message": "Escola não encontrada"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Validar os dados antes de actualizar a escola
-        data = request.data
-        serializer = EscolaSerializer(instance=escola, data=data)
-
+        # Validar os dados antes de atualizar a escola
+        serializer = EscolaSerializer(instance=escola, data=request.data, partial=partial)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def filter_queryset(self, request):
         request = self.request
