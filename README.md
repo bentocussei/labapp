@@ -30,13 +30,14 @@ python manage.py runserver
 ## Uso
 
 ### Endpoints da API
-GET /escolas/: Lista todas as escolas.
-GET /escolas/{id}/: Retorna detalhes de uma escola específica.
-POST /escolas/: Cria uma nova escola.
-PUT /escolas/{id}/: Atualiza os detalhes de uma escola existente.
-PATCH /escolas/{id}/: Atualiza parcialmente os detalhes de uma escola existente.
-DELETE /escolas/{id}/: Exclui uma escola existente.
-POST /escolas/upload-excel/: Importa dados de escolas a partir de um arquivo Excel.
+- GET /escolas/: Lista todas as escolas.
+- GET /escolas/{id}/: Retorna detalhes de uma escola específica.
+- POST /escolas/: Cria uma nova escola.
+- PUT /escolas/{id}/: Atualiza os detalhes de uma escola existente.
+- PATCH /escolas/{id}/: Atualiza parcialmente os detalhes de uma escola existente.
+- DELETE /escolas/{id}/: Exclui uma escola existente.
+- POST /escolas/upload-excel/: Importa dados de escolas a partir de um arquivo Excel.
+- POST /escolas/filter_by_provincia/: Filtra as escolas com base nas províncias fornecidas no JSON no corpo da requisição.
 
 ### Autenticação
 API aberta
