@@ -9,6 +9,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.decorators import action
 from rest_framework.views import APIView
+from django.http import JsonResponse
 
 class EscolaViewSet(viewsets.ModelViewSet):
     queryset = Escola.objects.all()
@@ -96,29 +97,39 @@ class EscolaViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @classmethod
     @swagger_auto_schema(
-        method='get',
-        manual_parameters=[
-            openapi.Parameter(
-                'provincias', 
-                openapi.IN_QUERY, 
-                type=openapi.TYPE_STRING,
-                description='Filtrar escolas por província (separadas por vírgula).'
-            )
-        ],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'provincias': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING)),
+            },
+            required=['provincias']
+        ),
         responses={200: 'OK'},
-        operation_description="Filtra as escolas com base nas províncias fornecidas nos parâmetros da requisição."
+        operation_description="Filtra as escolas com base nas províncias fornecidas no JSON no corpo da requisição."
     )
-    @action(detail=False, methods=['get'], name='filter_by_provincia', url_path='filter_by_provincia')
-    def filter_by_provincia(self, request):
-        provincias_desejadas = request.GET.get('provincias')
+    @action(detail=False, methods=['post'], name='filter_by_provincia', url_path='filter_by_provincia')
+    def filter_by_provincia(cls, request):
+        data = request.data
+        provincias_desejadas = data.get('provincias', [])
 
-        if provincias_desejadas:
-            queryset = self.queryset.filter(provincia__contains=[provincias_desejadas])
-            serializer = EscolaSerializer(queryset, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response([], status=status.HTTP_200_OK)
+        if not isinstance(provincias_desejadas, list):
+            return JsonResponse({'error': 'O campo "provincias" deve ser uma lista.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Inicialização de um Queryset vazio
+        queryset = Escola.objects.none()  
+
+        for provincia in provincias_desejadas:
+            queryset |= Escola.objects.filter(provincia__contains=[provincia])
+
+        serializer = EscolaSerializer(queryset, many=True)
+        escolas = serializer.data
+
+        # Obtemos as províncias únicas presentes nas escolas filtradas
+        provincias_disponiveis = list(set(provincia for escola in escolas for provincia in escola['provincia']))
+
+        return JsonResponse({'escolas': escolas, 'provincias_disponiveis': provincias_disponiveis}, status=status.HTTP_200_OK)
         
 
 class UploadExcelView(APIView):
