@@ -3,7 +3,7 @@
 LABAPP é uma API desenvolvida em Django que gerencia informações sobre escolas, permitindo a criação, atualização, exclusão e importação de dados a partir de um arquivo Excel.
 
 ## DEMO
-- [Demo da API](https://labapp-demo.onrender.com/swagger/)
+- [Demo da API - Clica aqui para abrir e testar a API](https://labapp-demo.onrender.com/swagger/)
 
 ![LABAPP API](files/img/api.png)
 
